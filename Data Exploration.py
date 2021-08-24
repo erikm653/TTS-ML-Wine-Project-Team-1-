@@ -46,3 +46,5 @@ wine_white_sugar_alc = (
     #slight monotonic behavior with SULPHATES,CITRIC ACID,VOLATILE ACID
     #variation within total sulfur
     #I see a need for weighted probabilities based on intervals of factor values
+
+#testing
