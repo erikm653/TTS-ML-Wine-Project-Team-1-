@@ -13,6 +13,8 @@ from sklearn import metrics
 from sklearn import preprocessing
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+import time
+# XGBoost
 
 ##############################################################################
 
@@ -107,7 +109,7 @@ cm_plot = sns.heatmap(corr_matrix, annot=True, linewidths=.8,fmt='.2f',ax=ax)
 #CorrMatrix w/o Quality #
 
 f, ax = plt.subplots(figsize = (10,10))
-cm_plot = sns.heatmap(corr_matrix2, annot=True, linewidths=.8,fmt='.2f',ax=ax)
+cm_plot_noqual = sns.heatmap(corr_matrix2, annot=True, linewidths=.8,fmt='.2f',ax=ax)
 
 # Quality Distribution #
 
@@ -121,7 +123,7 @@ plt.show()
 ###############################################################################
 # Models #
 
-# 1) Multiple Logistic Regression
+# 1) Multiple Logistic Regression (Check)
 # 2) Random Forrest
 # 3) PCA
 # 4) SVM - Gaussian Kernel
@@ -131,16 +133,24 @@ feature_train,feature_test,target_train,target_test = train_test_split(features_
                                                       test_size=0.3,
                                                       random_state=100) 
 
-# Logistic Regression #
+# Red Wine Logistic Regression #
 
-# w/ Feature Selection
+# w/o Feature Selection
+
+start_time = time.time() #starts timer
 
 pipe = make_pipeline(StandardScaler(), LogisticRegression())
 pipe.fit(feature_train, target_train)
 
 logreg_score_red = pipe.score(feature_test,target_test)
 
-# w/o Feature Selection
+end_time = time.time() #ends timer
+print("Red Wine Model's Execution Times:")
+print("Logistic Regression w/o Feature Selection:", end_time-start_time)
+
+# w/ Feature Selection
+
+start_time = time.time() #starts timer
 
 pipe.fit(feature_train, target_train)  
 
@@ -156,3 +166,152 @@ pipe.fit(feature_train, target_train)
 
 sel_logreg_score_red = pipe.score(feature_test,target_test)
 
+end_time = time.time() #ends timer
+print("Logistic Regression w/ Feature Selection:", end_time-start_time)
+
+# w/ adjusted quality label
+
+adj_red = wine_red
+
+x=[]
+for element in adj_red.quality:
+    if element >=7:
+        x.append('good')
+    elif ((element < 7) and (element>=5)):
+        x.append('decent')
+    else:
+        x.append('underwhelming')
+
+adj_red['quality_label'] = x
+
+target_adj_red = adj_red['quality_label']
+
+# w/o Feature Selection
+
+start_time = time.time() #starts timer
+
+feature_train,feature_test,target_train,target_test = train_test_split(features_red,
+                                                      target_adj_red,
+                                                      test_size=0.3,
+                                                      random_state=100) 
+
+pipe = make_pipeline(StandardScaler(), LogisticRegression())
+pipe.fit(feature_train, target_train)
+
+logreg_score_adj_red = pipe.score(feature_test,target_test)
+
+end_time = time.time() #ends timer
+print("Adjusted quality label Logistic Regression w/o Feature Selection:", end_time-start_time)
+
+# w/ Selection
+
+start_time = time.time() #starts timer
+
+pipe2 = make_pipeline(LogisticRegression())
+
+feature_train,feature_test,target_train,target_test = train_test_split(selected_features_red,
+                                                      target_adj_red,
+                                                      test_size=0.3,
+                                                      random_state=100) 
+
+pipe = make_pipeline(StandardScaler(), LogisticRegression())
+pipe.fit(feature_train, target_train)
+
+logred_score_selected_adj_red = pipe.score(feature_test,target_test)
+
+end_time = time.time() #ends timer
+print("Adjusted quality label Logistic Regression w/ Feature Selection:", end_time-start_time)
+
+# White Wine Logistic Regression #
+
+feature_train,feature_test,target_train,target_test = train_test_split(features_white,
+                                                      target_white,
+                                                      test_size=0.3,
+                                                      random_state=100) 
+
+# w/o Feature Selection
+
+start_time = time.time() #starts timer
+
+pipe = make_pipeline(StandardScaler(), LogisticRegression())
+pipe.fit(feature_train, target_train)
+
+logreg_score_white = pipe.score(feature_test,target_test)
+
+end_time = time.time() #ends timer
+print("White Wine Model's Execution Times:")
+print("Logistic Regression w/o Feature Selection:", end_time-start_time)
+
+# w/ Feature Selection
+
+start_time = time.time() #starts timer
+
+pipe.fit(feature_train, target_train)  
+
+logreg_score_white = pipe.score(feature_test,target_test)
+
+
+feature_train,feature_test,target_train,target_test = train_test_split(features_white,
+                                                      target_white,
+                                                      test_size=0.3,
+                                                      random_state=100) 
+
+pipe.fit(feature_train, target_train)  
+
+sel_logreg_score_white = pipe.score(feature_test,target_test)
+
+end_time = time.time() #ends timer
+print("Logistic Regression w/ Feature Selection:", end_time-start_time)
+
+# w/ adjusted quality label
+
+adj_white = wine_white
+
+y=[]
+for element in adj_red.quality:
+    if element >=7:
+        y.append('good')
+    elif ((element < 7) and (element>=5)):
+        y.append('decent')
+    else:
+        y.append('underwhelming')
+
+adj_white['quality_label'] = y
+
+target_adj_white = adj_white['quality_label'] 
+
+# w/o Feature Selection
+
+start_time = time.time() #starts timer
+
+feature_train,feature_test,target_train,target_test = train_test_split(features_white,
+                                                      target_adj_white,
+                                                      test_size=0.3,
+                                                      random_state=100) 
+
+pipe = make_pipeline(StandardScaler(), LogisticRegression())
+pipe.fit(feature_train, target_train)
+
+logreg_score_adj_white = pipe.score(feature_test,target_test)
+
+end_time = time.time() #ends timer
+print("Adjusted quality label Logistic Regression w/o Feature Selection:", end_time-start_time)
+
+# w/ Selection
+
+start_time = time.time() #starts timer
+
+pipe2 = make_pipeline(LogisticRegression())
+
+feature_train,feature_test,target_train,target_test = train_test_split(features_white,
+                                                      target_adj_white,
+                                                      test_size=0.3,
+                                                      random_state=100) 
+
+pipe = make_pipeline(StandardScaler(), LogisticRegression())
+pipe.fit(feature_train, target_train)
+
+logreg_score_selected_adj_white = pipe.score(feature_test,target_test)
+
+end_time = time.time() #ends timer
+print("Adjusted quality label Logistic Regression w/ Feature Selection:", end_time-start_time)
